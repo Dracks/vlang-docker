@@ -1,5 +1,6 @@
 # Generates basic image with compiled V using clang as default
-FROM thevlang/vlang:debian-build AS builder 
+ARG USER=thevlang
+FROM ${USER}/vlang:debian-build AS builder 
 
 LABEL org.opencontainers.image.authors="helto4real <helto4real@joysoftware.xyz>, Sandro Martini <sandro.martini@gmail.com>"
 
@@ -9,19 +10,10 @@ WORKDIR /opt/vlang
 RUN git clone --depth 1 https://github.com/vlang/v /opt/vlang && make && v -version
 
 
-FROM thevlang/vlang:debian-base AS runtime 
-
-LABEL org.opencontainers.image.authors="helto4real <helto4real@joysoftware.xyz>, Sandro Martini <sandro.martini@gmail.com>"
-
-WORKDIR /opt/vlang
-
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     clang llvm-dev && \
     apt-get clean && rm -rf /var/cache/apt/archives/* && \
     rm -rf /var/lib/apt/lists/*
-
-# Copy the prebuilt V compiler
-COPY --from=builder /opt/vlang /opt/vlang
 
 WORKDIR /src
